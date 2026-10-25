@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulasi CBT - Pengetahuan Umum</title>
+<style>
+:root{--blue:#174ea6;--light:#f3f6fb;--border:#d8deea}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--light);color:#202636}
+header{background:var(--blue);color:#fff;padding:18px 20px}
+header h1{font-size:22px;margin:0 0 6px} header p{margin:0;font-size:14px}
+.wrap{max-width:980px;margin:22px auto;padding:0 14px}
+.card{background:white;border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 2px 8px #14213d0a}
+label{display:block;font-weight:600;margin:10px 0 6px}
+input[type=text]{width:100%;padding:11px;border:1px solid #b9c4d6;border-radius:7px;font-size:15px}
+.topline{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+#timer{font-size:18px;font-weight:bold;color:#a32323;background:#fff0f0;padding:9px 13px;border-radius:8px}
+.progress{height:8px;background:#e6eaf2;border-radius:10px;overflow:hidden;margin-top:14px}
+#bar{height:100%;width:0;background:#2e7d32;transition:width .2s}
+.question{padding:17px 0;border-bottom:1px solid #e6eaf2}
+.question:last-child{border-bottom:0}
+.qtitle{font-weight:700;line-height:1.5;margin-bottom:10px}
+.option{display:flex;gap:9px;align-items:flex-start;padding:9px 10px;margin:5px 0;border:1px solid #e0e5ee;border-radius:8px;cursor:pointer;font-weight:400}
+.option:hover{background:#f7f9fd}.option input{margin-top:3px}
+button{border:0;border-radius:8px;padding:12px 17px;font-size:15px;font-weight:700;cursor:pointer}
+.primary{background:var(--blue);color:white}.secondary{background:#e8edf6;color:#202636}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+#result{display:none}.score{font-size:30px;font-weight:800;color:var(--blue)}
+.small{font-size:13px;color:#596579;line-height:1.5}
+.badge{display:inline-block;background:#edf4ff;color:#174ea6;padding:5px 9px;border-radius:20px;font-size:12px;font-weight:700}
+@media print{header,.actions,#timer{display:none}.card{box-shadow:none}}
+</style>
+</head>
+<body>
+<header>
+  <h1>SIMULASI COMPUTER BASED TEST (CBT)</h1>
+  <p>Tes Pengetahuan Umum • 20 soal • Pilihan ganda</p>
+</header>
+<div class="wrap">
+  <section class="card" id="identity">
+    <span class="badge">LATIHAN / UJI COBA</span>
+    <h2>Data Peserta</h2>
+    <p class="small">Isi nama sebelum mulai. Waktu pengerjaan 30 menit. Jawaban dinilai otomatis saat dikumpulkan.</p>
+    <label for="student">Nama peserta</label>
+    <input id="student" type="text" placeholder="Masukkan nama peserta">
+    <label for="classroom">Kelas (opsional)</label>
+    <input id="classroom" type="text" placeholder="Contoh: XI">
+    <div class="actions"><button class="primary" id="start">Mulai ujian</button></div>
+  </section>
+
+  <section class="card" id="exam" style="display:none">
+    <div class="topline">
+      <div><strong id="candidate"></strong><div class="small">Pilih satu jawaban untuk setiap soal.</div></div>
+      <div id="timer">30:00</div>
+    </div>
+    <div class="progress"><div id="bar"></div></div>
+    <div id="questions"></div>
+    <div class="actions">
+      <button class="primary" id="submit">Kumpulkan jawaban</button>
+      <button class="secondary" id="clear">Hapus semua jawaban</button>
+    </div>
+    <p class="small">Pastikan jawaban sudah diperiksa sebelum mengumpulkan.</p>
+  </section>
+
+  <section class="card" id="result">
+    <h2>Hasil Ujian</h2>
+    <p id="resultName"></p>
+    <div class="score" id="score"></div>
+    <p id="detail"></p>
+    <div id="review"></div>
+    <div class="actions"><button class="primary" onclick="window.print()">Cetak / Simpan hasil sebagai PDF</button><button class="secondary" id="retry">Ulangi ujian</button></div>
+  </section>
+  <p class="small">File simulasi ini berjalan secara lokal dan tidak mengirim data peserta ke internet. Kompatibilitas dengan CBT ExamBrowser bergantung pada pengaturan aplikasi; beberapa ExamBrowser hanya mengizinkan alamat ujian dari server sekolah dan memblokir file lokal.</p>
+</div>
+<script>
+const data = [
+{q:"Hasil dari 15 × 6 adalah ...",o:["80","90","96","105"],a:1,e:"15 × 6 = 90."},
+{q:"Planet yang dikenal sebagai Planet Merah adalah ...",o:["Venus","Jupiter","Mars","Merkurius"],a:2,e:"Mars tampak kemerahan karena mineral besi teroksidasi di permukaannya."},
+{q:"Sinonim kata “cermat” adalah ...",o:["Teliti","Ceroboh","Lambat","Ragu"],a:0,e:"Cermat berarti teliti atau berhati-hati."},
+{q:"Proses tumbuhan membuat makanan dengan bantuan cahaya disebut ...",o:["Respirasi","Fotosintesis","Evaporasi","Adaptasi"],a:1,e:"Fotosintesis menggunakan energi cahaya untuk membuat senyawa makanan."},
+{q:"Ibu kota negara Jepang adalah ...",o:["Seoul","Beijing","Bangkok","Tokyo"],a:3,e:"Ibu kota Jepang adalah Tokyo."},
+{q:"Bentuk desimal dari 3/4 adalah ...",o:["0,25","0,5","0,75","1,25"],a:2,e:"3 dibagi 4 = 0,75."},
+{q:"Lawan kata “optimis” yang paling tepat adalah ...",o:["Aktif","Pesimis","Realistis","Kreatif"],a:1,e:"Pesimis adalah kebalikan dari optimis."},
+{q:"Organ tubuh yang memompa darah ke seluruh tubuh adalah ...",o:["Paru-paru","Ginjal","Jantung","Lambung"],a:2,e:"Jantung memompa darah melalui sistem peredaran darah."},
+{q:"Satuan SI untuk mengukur gaya adalah ...",o:["Joule","Watt","Newton","Pascal"],a:2,e:"Gaya diukur dalam newton (N)."},
+{q:"Jumlah sudut dalam sebuah segitiga pada geometri datar adalah ...",o:["90°","180°","270°","360°"],a:1,e:"Jumlah sudut dalam segitiga adalah 180°."},
+{q:"Bahasa resmi negara Brasil adalah ...",o:["Spanyol","Portugis","Inggris","Prancis"],a:1,e:"Bahasa resmi Brasil adalah Portugis."},
+{q:"Bagian komputer yang menjalankan instruksi program terutama adalah ...",o:["CPU","Monitor","Keyboard","Speaker"],a:0,e:"CPU memproses instruksi program."},
+{q:"Jika x + 9 = 17, maka nilai x adalah ...",o:["6","7","8","9"],a:2,e:"x = 17 − 9 = 8."},
+{q:"Perubahan wujud dari cair menjadi gas disebut ...",o:["Membeku","Mengembun","Menyublim","Menguap"],a:3,e:"Menguap adalah perubahan wujud cair menjadi gas."},
+{q:"Semboyan negara Indonesia adalah ...",o:["Tut Wuri Handayani","Bhinneka Tunggal Ika","Ing Ngarsa Sung Tuladha","Jalesveva Jayamahe"],a:1,e:"Bhinneka Tunggal Ika berarti berbeda-beda tetapi tetap satu."},
+{q:"Manakah yang termasuk sumber energi terbarukan?",o:["Batu bara","Minyak bumi","Tenaga surya","Gas alam"],a:2,e:"Energi surya berasal dari sinar Matahari dan dapat diperbarui."},
+{q:"Kata baku yang benar adalah ...",o:["Resiko","Risiko","Ijin","Apotik"],a:1,e:"Bentuk baku menurut KBBI adalah risiko."},
+{q:"Benua terbesar di dunia berdasarkan luas wilayah adalah ...",o:["Afrika","Eropa","Asia","Australia"],a:2,e:"Asia merupakan benua terluas."},
+{q:"Jika semua mawar adalah bunga, pernyataan yang pasti benar adalah ...",o:["Semua bunga adalah mawar","Sebagian mawar bukan bunga","Semua mawar adalah bunga","Tidak ada mawar yang bunga"],a:2,e:"Pernyataan yang diberikan langsung menyatakan semua mawar adalah bunga."},
+{q:"Perangkat yang digunakan untuk memasukkan teks ke komputer adalah ...",o:["Printer","Keyboard","Proyektor","Monitor"],a:1,e:"Keyboard digunakan untuk memasukkan teks dan perintah."}
+];
+let seconds=1800, ticker=null, started=false, finished=false;
+const $=id=>document.getElementById(id);
+function render(){
+  $("questions").innerHTML=data.map((x,i)=>`<div class="question"><div class="qtitle">${i+1}. ${x.q}</div>${x.o.map((op,j)=>`<label class="option"><input type="radio" name="q${i}" value="${j}"><span>${String.fromCharCode(65+j)}. ${op}</span></label>`).join("")}</div>`).join("");
+  $("questions").addEventListener("change",updateProgress);
+}
+function updateProgress(){
+ const n=data.filter((_,i)=>document.querySelector(`input[name="q${i}"]:checked`)).length;
+ $("bar").style.width=(n/data.length*100)+"%";
+}
+function showTime(){
+ const m=String(Math.floor(seconds/60)).padStart(2,"0"),s=String(seconds%60).padStart(2,"0");
+ $("timer").textContent=`${m}:${s}`;
+}
+function finish(auto=false){
+ if(finished)return;
+ finished=true;clearInterval(ticker);
+ const answers=data.map((_,i)=>{const el=document.querySelector(`input[name="q${i}"]:checked`);return el?Number(el.value):-1});
+ const correct=answers.reduce((n,a,i)=>n+(a===data[i].a?1:0),0);
+ $("exam").style.display="none";$("result").style.display="block";
+ $("resultName").textContent=`Peserta: ${$("student").value.trim()}${$("classroom").value.trim()?" • Kelas "+$("classroom").value.trim():""}`;
+ $("score").textContent=`${Math.round(correct/data.length*100)}/100`;
+ $("detail").textContent=`Jawaban benar: ${correct} dari ${data.length}. Jawaban salah atau kosong: ${data.length-correct}.${auto?" Waktu habis; ujian dikumpulkan otomatis.":""}`;
+ $("review").innerHTML="<h3>Pembahasan</h3>"+data.map((x,i)=>`<div class="question"><strong>${i+1}. ${answers[i]===x.a?"Benar":"Belum tepat"}</strong><div>${x.q}</div><div>Jawaban benar: ${String.fromCharCode(65+x.a)}. ${x.o[x.a]}</div><div class="small">${x.e}</div></div>`).join("");
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+$("start").addEventListener("click",()=>{
+ if(!$("student").value.trim()){alert("Isi nama peserta terlebih dahulu.");$("student").focus();return;}
+ $("identity").style.display="none";$("exam").style.display="block";started=true;render();showTime();
+ ticker=setInterval(()=>{seconds--;showTime();if(seconds<=0)finish(true);},1000);
+ window.scrollTo({top:0,behavior:"smooth"});
+});
+$("submit").addEventListener("click",()=>{
+ const unanswered=data.filter((_,i)=>!document.querySelector(`input[name="q${i}"]:checked`)).length;
+ if(unanswered && !confirm(`Masih ada ${unanswered} soal yang belum dijawab. Tetap kumpulkan?`))return;
+ if(confirm("Kumpulkan jawaban sekarang? Setelah dikumpulkan, jawaban tidak bisa diubah."))finish(false);
+});
+$("clear").addEventListener("click",()=>{if(confirm("Hapus semua jawaban yang sudah dipilih?")){document.querySelectorAll('input[type="radio"]').forEach(x=>x.checked=false);updateProgress();}});
+$("retry").addEventListener("click",()=>location.reload());
+</script>
+</body>
+</html>
